@@ -17,7 +17,6 @@ def editar_perfil():
 
     if st.button("Salvar"):
         if nome and telefone:
-            # Aqui você precisará implementar a lógica para salvar o perfil
             st.success(f"Perfil atualizado com sucesso! Novo nome: {nome}, Novo telefone: {telefone}")
         else:
             st.warning("Por favor, preencha o nome e o telefone antes de salvar.")

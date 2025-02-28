@@ -1,47 +1,55 @@
 import json
 
 class Contato:
-    def __init__(self, nome, telefone):
+    def __init__(self, id, nome, telefone):
+        self.id = id
         self.nome = nome
         self.telefone = telefone
 
+    def __str__(self):
+        return f"{self.id} - {self.nome} - {self.telefone}"
+
 class Contatos:
-    contatos = []
+    objetos = []
 
     @classmethod
     def listar(cls):
-        return cls.contatos
+        return cls.objetos
 
     @classmethod
-    def abrir(cls):
-        try:
-            with open("contatos.json", "r") as f:
-                contatos_data = json.load(f)
-                for obj in contatos_data:
-                    if "nome" in obj and "telefone" in obj:
-                        c = Contato(obj["nome"], obj["telefone"])
-                        cls.contatos.append(c)
-                    else:
-                        print("Erro: Dados de contato incompletos.", obj)
-        except FileNotFoundError:
-            print("Arquivo de contatos não encontrado.")
-        except json.JSONDecodeError:
-            print("Erro ao decodificar o arquivo JSON.")
+    def listar_id(cls, id):
+        return next((contato for contato in cls.objetos if contato.id == id), None)
 
     @classmethod
     def inserir(cls, contato):
-        cls.contatos.append(contato)  # Adiciona o novo contato na lista
-        
-        # Salva a lista de contatos no arquivo JSON
-        cls.salvar()
+        cls.objetos.append(contato)
+
+    @classmethod
+    def excluir(cls, contato):
+        # Adicionando o método de exclusão que remove o contato pela comparação do id
+        cls.objetos = [c for c in cls.objetos if c.id != contato.id]
+        cls.salvar()  # Salvar após excluir
 
     @classmethod
     def salvar(cls):
         try:
-            # Converte a lista de objetos Contato em um formato que pode ser salvo em JSON
-            contatos_data = [{"nome": c.nome, "telefone": c.telefone} for c in cls.contatos]
-            with open("contatos.json", "w") as f:
-                json.dump(contatos_data, f, indent=4)
-            print("Contatos salvos com sucesso!")
+            with open("contatos.json", mode="w") as arquivo:
+                json.dump([vars(contato) for contato in cls.objetos], arquivo, indent=4)
         except Exception as e:
             print(f"Erro ao salvar os contatos: {e}")
+
+    @classmethod
+    def abrir(cls):
+        cls.objetos = []  # Resetando a lista de objetos
+        try:
+            with open("contatos.json", mode="r") as arquivo:
+                texto = json.load(arquivo)
+                for obj in texto:
+                    c = Contato(obj["id"], obj["nome"], obj["telefone"])
+                    cls.objetos.append(c)
+        except FileNotFoundError:
+            print("Arquivo 'contatos.json' não encontrado. Nenhum contato carregado.")
+        except json.JSONDecodeError:
+            print("Erro ao decodificar o arquivo de contatos. O arquivo pode estar corrompido.")
+        except Exception as e:
+            print(f"Erro inesperado ao abrir contatos: {e}")

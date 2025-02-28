@@ -3,14 +3,19 @@ from models.contato import Contatos
 from models.grupo import Grupos
 from models.mensagem import Mensagens, Mensagem
 
+# Função para enviar mensagem
 def enviar_mensagem():
     st.title("Enviar Mensagem")
+    
+    # Obtendo contatos e grupos
     contatos = Contatos.listar()
     grupos = Grupos.listar()
 
+    # Seleção de destinatário
     destinatario_tipo = st.radio("Enviar para", ("Contato", "Grupo"))
     destinatario = None
 
+    # Lógica para escolher o destinatário
     if destinatario_tipo == "Contato":
         if not contatos:
             st.warning("Adicione contatos primeiro.")
@@ -22,8 +27,10 @@ def enviar_mensagem():
             return
         destinatario = st.selectbox("Para o Grupo", grupos, format_func=lambda g: g.nome)
 
+    # Campo de texto para a mensagem
     mensagem_texto = st.text_area("Mensagem")
 
+    # Envio da mensagem
     if st.button("Enviar"):
         if mensagem_texto:
             if destinatario_tipo == "Contato":
@@ -47,15 +54,18 @@ def enviar_mensagem():
         else:
             st.warning("Digite uma mensagem.")
 
+# Função para apagar mensagem
 def apagar_mensagem():
     st.title("Apagar Mensagem")
+    
+    # Listando as mensagens
     mensagens = Mensagens.listar()
 
     if not mensagens:
         st.warning("Não há mensagens para apagar.")
         return
 
-    # Exibição das mensagens na interface
+    # Seleção da mensagem para apagar
     mensagem_escolhida = st.selectbox(
         "Selecione a mensagem para apagar", 
         mensagens, 
@@ -63,7 +73,7 @@ def apagar_mensagem():
     )
 
     if st.button("Apagar"):
-        # Comparar pelo id da mensagem
+        # Remover a mensagem escolhida
         mensagem_encontrada = next((m for m in mensagens if m.id == mensagem_escolhida.id), None)
 
         if mensagem_encontrada:
